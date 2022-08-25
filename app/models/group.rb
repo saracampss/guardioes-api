@@ -129,4 +129,23 @@ class Group < ApplicationRecord
     end
     return nil
   end
+
+  def user_score_by_group_id
+    users = User.where(group_id: id)
+
+    @user_score_by_group_id ||= users.map do |user|
+      { user.user_name => get_user_scores(user), email: user.email }
+    end
+    @user_score_by_group_id
+  end
+
+  def get_user_scores(user)
+    user.surveys.map do |survey|
+      Syndrome.find(survey.syndrome_id)&.threshold_score
+    end
+  end
+
+  def group_user_by_email(email)
+    user_score_by_group_id.select { |e| e[:email] == email }.first
+  end 
 end

@@ -256,4 +256,72 @@ RSpec.describe Group, type: :model do
     end
 
   end
+
+  describe "=> TDD US28" do
+    context "=> achar usuario por group_id" do
+      before(:all) do 
+        @email = 'alice@gmail.com'
+
+        @app = App.create!(app_name: 'app', owner_country: 'brasil')
+
+        @parent1 = Group.create!(description: 'root_node')
+        @parent1 = @parent1.reload
+
+        @group1 = Group.create!(description: 'brasil', parent_id: @parent1.id)
+        @group1 = @group1.reload
+        @user1 = User.create!(app_id: @app.id, user_name: 'alice', email: @email, password: "abc12345encryp", group: @group1)
+        @user1.reload
+        @syndrome1 = Syndrome.create!(threshold_score: 9.3.to_f)
+        @syndrome1 = @syndrome1.reload
+        @survey1 = Survey.create!(user_id: @user1.id, syndrome_id: @syndrome1.id, latitude: 22.44.to_f, longitude: 234.1.to_f)
+        @survey1 = @survey1.reload
+
+        @group2 = Group.create!(description: 'alemanha', parent_id: @parent1.id)
+        @group2 = @group2.reload
+
+        @group3 = Group.create!(description: 'grecia ', parent_id: @parent1.id)
+        @group3 = @group3.reload
+        @user3 = User.create!(app_id: @app.id, user_name: 'joao', email: 'joao@gmail.com', password: "abc12345encryp", group_id: @group3.id)
+        @user3 = @user3.reload
+        @syndrome3 = Syndrome.create!(threshold_score: 9.3.to_f)
+        @syndrome3 = @syndrome3.reload
+        @survey3 = Survey.create!(user_id: @user3.id, syndrome_id: @syndrome3.id, latitude: 24.44.to_f, longitude: 263.1.to_f) 
+        @survey3 = @survey3.reload
+
+        @expect1 = @group1.user_score_by_group_id.count
+        @expect2 = @group2.user_score_by_group_id.count
+        @expect3 = @group1.get_user_scores(@user1).count
+        @expect4 = @group3.group_user_by_email(@email)
+        @expect5 = @group1.group_user_by_email(@email)[:email]
+
+        user_hash = @group1.group_user_by_email(@user1.email)
+        user = User.find_by(email: user_hash[:email])  
+        @except6 = user.group_id
+      end 
+
+      it '=> achar lista de usuários e notas do grupo 1' do
+        expect(@expect1).to eq(1)
+      end 
+
+      it '=> lista de usuários e notas do grupo 2 vazia' do 
+        expect(@expect2).to eq(0)
+      end 
+      
+      it '=> busca notas do usuario' do
+        expect(@expect3).to be > 0
+      end 
+
+      it '=> email passado como parametro nao pertence a um usuario associado ao group' do 
+        expect(@expect4).to be nil
+      end
+      
+      it '=> email do usuário retornado é igual ao email passado como parametro' do 
+        expect(@expect5).to eq(@user1.email)
+      end 
+      
+      it '=> group_id do user retornado é igual ao id do group' do 
+        expect(@except6).to eq(@group1.id)
+      end
+    end
+  end
 end
