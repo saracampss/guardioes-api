@@ -258,7 +258,7 @@ RSpec.describe Group, type: :model do
   end
 
   describe "=> TDD US28" do
-    context "=> achar usuario por group_id" do
+    context "=> achar usuario e suas notas" do
       before(:all) do 
         @email = 'alice@gmail.com'
 
@@ -299,11 +299,11 @@ RSpec.describe Group, type: :model do
         @except6 = user.group_id
       end 
 
-      it '=> achar lista de usuários e notas do grupo 1' do
+      it '=> achar lista de usuários do grupo 1' do
         expect(@expect1).to eq(1)
       end 
 
-      it '=> lista de usuários e notas do grupo 2 vazia' do 
+      it '=> lista de usuários do grupo 2 vazia' do 
         expect(@expect2).to eq(0)
       end 
       
